@@ -1,57 +1,61 @@
 #include "buffer.h"
-#include <iostream>
-#include <iomanip>
 #include "disk_writer.h"
+#include <iomanip>
 
 using namespace std;
 
-Buffer::Buffer(size_t maxSize) : maxSize(maxSize) {}
+template<typename KeyType, typename ValueType>
+Buffer<KeyType, ValueType>::Buffer(size_t maxSize) : maxSize(maxSize) {}
 
-Buffer::~Buffer() {
+template<typename KeyType, typename ValueType>
+Buffer<KeyType, ValueType>::~Buffer() {
     // if (!entries.empty()) {
     //     flushToDisk();
     // }
 }
 
-bool Buffer::addData(const std::string& entry) {
+template<typename KeyType, typename ValueType>
+bool Buffer<KeyType, ValueType>::addData(const KeyType& key, const ValueType& value) {
     if (isFull()) {
         cout << "Buffer is full, flushing it to disk" << endl;
         flushToDisk();
-        entries.push_back(entry);
-        return true;
     }
-    entries.push_back(entry);
-    return false;
+    entries[key] = value;
+    return true;
 }
 
-bool Buffer::isFull() const {
+template<typename KeyType, typename ValueType>
+bool Buffer<KeyType, ValueType>::isFull() const {
     return entries.size() >= maxSize;
 }
 
-void Buffer::flushToDisk() {
+template<typename KeyType, typename ValueType>
+void Buffer<KeyType, ValueType>::flushToDisk() {
     if (entries.empty()) {
         return;
     }
 
-    DiskWriter writer;
+    DiskWriter<KeyType, ValueType> writer;
     writer.write(entries);
     entries.clear(); // Clear the buffer after flushing
 }
 
-void Buffer::printBuffer() const {
+template<typename KeyType, typename ValueType>
+void Buffer<KeyType, ValueType>::printBuffer() const {
     if (entries.empty()) {
         cout << "Buffer is empty." << endl;
         return;
     }
     cout << "----------------------------------------" << endl;
-    cout << "| Index | Data Entry                     |" << endl;
+    cout << "| Key | Value                        |" << endl;
     cout << "----------------------------------------" << endl;
 
-    int index = 0;
     for (const auto& entry : entries) {
-        cout << "| " << setw(5) << index++ << " | " 
-             << setw(30) << left << entry << " |" << endl;
+        cout << "| " << setw(3) << entry.first << " | " << setw(30) << entry.second << " |" << endl;
     }
 
     cout << "----------------------------------------" << endl;
 }
+
+// Explicit instantiation
+template class Buffer<int, string>;
