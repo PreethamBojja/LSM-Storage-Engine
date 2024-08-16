@@ -1,12 +1,12 @@
 #ifndef DISK_WRITER_H
 #define DISK_WRITER_H
 
-#include <unordered_map>
+#include <map>
 
 template <typename KeyType, typename ValueType>
 class DiskWriter {
 public:
-    void write(const std::unordered_map<KeyType, ValueType>& data);
+    void write(const std::map<KeyType, ValueType>& data);
 };
 
 // Explicit instantiation declarations (if needed)

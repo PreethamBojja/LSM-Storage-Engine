@@ -1,11 +1,15 @@
 #include "buffer.h"
 #include "disk_writer.h"
+#include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
 template<typename KeyType, typename ValueType>
-Buffer<KeyType, ValueType>::Buffer(size_t maxSize) : maxSize(maxSize) {}
+Buffer<KeyType, ValueType>::Buffer(size_t maxSize, size_t numLevels, size_t levelSize)
+    : maxSize(maxSize), numLevels(numLevels), levelSize(levelSize) {}
 
 template<typename KeyType, typename ValueType>
 Buffer<KeyType, ValueType>::~Buffer() {
@@ -35,6 +39,7 @@ void Buffer<KeyType, ValueType>::flushToDisk() {
         return;
     }
 
+    sortEntries();
     DiskWriter<KeyType, ValueType> writer;
     writer.write(entries);
     entries.clear(); // Clear the buffer after flushing
@@ -55,6 +60,20 @@ void Buffer<KeyType, ValueType>::printBuffer() const {
     }
 
     cout << "----------------------------------------" << endl;
+}
+
+template<typename KeyType, typename ValueType>
+void Buffer<KeyType, ValueType>::sortEntries() {
+    vector<std::pair<KeyType, ValueType>> sortedEntries(entries.begin(), entries.end());
+    sort(sortedEntries.begin(), sortedEntries.end(),
+              [](const pair<KeyType, ValueType>& a, const pair<KeyType, ValueType>& b) {
+                  return a.first < b.first;
+              });
+
+    entries.clear();
+    for (const auto& entry : sortedEntries) {
+        entries[entry.first] = entry.second;
+    }
 }
 
 // Explicit instantiation
