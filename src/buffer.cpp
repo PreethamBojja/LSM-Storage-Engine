@@ -24,7 +24,8 @@ bool Buffer<KeyType, ValueType>::addData(const KeyType& key, const ValueType& va
         cout << "Buffer is full, flushing it to disk" << endl;
         flushToDisk();
     }
-    entries[key] = value;
+    size_t hashedKey = hashKey(key); // Hash the key
+    entries[hashedKey] = value;
     return true;
 }
 
@@ -40,7 +41,7 @@ void Buffer<KeyType, ValueType>::flushToDisk() {
     }
 
     sortEntries();
-    DiskWriter<KeyType, ValueType> writer;
+    DiskWriter<size_t, ValueType> writer;
     writer.write(entries);
     entries.clear(); // Clear the buffer after flushing
 }
@@ -52,11 +53,11 @@ void Buffer<KeyType, ValueType>::printBuffer() const {
         return;
     }
     cout << "----------------------------------------" << endl;
-    cout << "| Key | Value                        |" << endl;
+    cout << "| Hashed Key | Value                   |" << endl;
     cout << "----------------------------------------" << endl;
 
     for (const auto& entry : entries) {
-        cout << "| " << setw(3) << entry.first << " | " << setw(30) << entry.second << " |" << endl;
+        cout << "| " << setw(10) << entry.first << " | " << setw(30) << entry.second << " |" << endl;
     }
 
     cout << "----------------------------------------" << endl;
@@ -64,9 +65,9 @@ void Buffer<KeyType, ValueType>::printBuffer() const {
 
 template<typename KeyType, typename ValueType>
 void Buffer<KeyType, ValueType>::sortEntries() {
-    vector<std::pair<KeyType, ValueType>> sortedEntries(entries.begin(), entries.end());
+    vector<std::pair<size_t, ValueType>> sortedEntries(entries.begin(), entries.end());
     sort(sortedEntries.begin(), sortedEntries.end(),
-              [](const pair<KeyType, ValueType>& a, const pair<KeyType, ValueType>& b) {
+              [](const pair<size_t, ValueType>& a, const pair<size_t, ValueType>& b) {
                   return a.first < b.first;
               });
 
@@ -74,6 +75,13 @@ void Buffer<KeyType, ValueType>::sortEntries() {
     for (const auto& entry : sortedEntries) {
         entries[entry.first] = entry.second;
     }
+}
+
+template<typename KeyType, typename ValueType>
+size_t Buffer<KeyType, ValueType>::hashKey(const KeyType& key) const {
+    size_t hashedKey;
+    hashedKey = MurmurHash::hash32(&key, sizeof(key), 0);
+    return hashedKey;
 }
 
 // Explicit instantiation

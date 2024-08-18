@@ -24,4 +24,4 @@ void DiskWriter<KeyType, ValueType>::write(const map<KeyType, ValueType>& data) 
 }
 
 // Explicit instantiation for specific types
-template class DiskWriter<int, std::string>;
+template class DiskWriter<size_t, std::string>;

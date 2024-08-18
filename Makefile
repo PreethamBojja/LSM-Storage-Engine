@@ -7,10 +7,10 @@ CXX = g++
 CXXFLAGS = -Wall -std=c++11
 
 # Source files
-SRCS = src/main.cpp src/buffer.cpp src/disk_writer.cpp
+SRCS = src/main.cpp src/buffer.cpp src/disk_writer.cpp src/murmur_hash.cpp
 
 # Header files (not used in compilation but can be useful for dependencies)
-HEADERS = src/buffer.h src/disk_writer.h
+HEADERS = src/buffer.h src/disk_writer.h src/murmur_hash.h
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

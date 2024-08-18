@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 #include <algorithm>
+#include "murmur_hash.h"
 
 using namespace std;
 
@@ -20,11 +21,12 @@ public:
     void printBuffer() const; 
 
 private:
-    map<KeyType, ValueType> entries; 
+    map<size_t, ValueType> entries;
     size_t maxSize;
     size_t numLevels;
     size_t levelSize;
 
+    size_t hashKey(const KeyType& key) const;
     void sortEntries();
 };
 
